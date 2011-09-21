@@ -72,15 +72,17 @@ CD_CreateServer (const char* path)
 
 	DYNAMIC(self) = CD_CreateDynamic();
 	ERROR(self)   = CDNull;
-
+        
+        //Server Events
 	CD_EventProvides(self, "Server.create",     CD_CreateEventParameters(NULL));
 	CD_EventProvides(self, "Server.start!",     CD_CreateEventParameters(NULL));
+        CD_EventProvides(self, "Server.stop!",      CD_CreateEventParameters(NULL));
+	CD_EventProvides(self, "Server.destroy",    CD_CreateEventParameters(NULL));
+        //Client Events
 	CD_EventProvides(self, "Client.connect",    CD_CreateEventParameters("CDClient", NULL));
 	CD_EventProvides(self, "Client.kick",       CD_CreateEventParameters("CDClient", "CDString", NULL));
 	CD_EventProvides(self, "Client.disconnect", CD_CreateEventParameters("CDClient", "bool", NULL));
 	CD_EventProvides(self, "Client.destroy",    CD_CreateEventParameters("CDClient", NULL));
-	CD_EventProvides(self, "Server.stop!",      CD_CreateEventParameters(NULL));
-	CD_EventProvides(self, "Server.destroy",    CD_CreateEventParameters(NULL));
 
 	CD_EventDispatch(self, "Server.create");
 

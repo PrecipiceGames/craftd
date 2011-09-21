@@ -642,6 +642,64 @@ cdsurvival_ClientProcess (CDServer* server, CDClient* client, SVPacket* packet)
 			player->yaw             = data->request.yaw;
 			player->pitch           = data->request.pitch;
 		} break;
+                
+                case SVPlayerDigging: {
+                    //TODO: Have an event handler associated with this event
+                    SVPacketPlayerDigging* data = (SVPacketPlayerDigging*) packet->data;
+                    
+                    if((data->request.status == SVStoppedDigging && world->mode == SVModeSurvival) ||
+                            (data->request.status == SVStartedDigging && world->mode == SVModeCreative)) {
+                        SVPrecisePosition a = SV_BlockPositionToPrecisePosition(data->request.position);
+                        if(!SV_IsDistanceGreater(player->entity.position, a, 6)) {
+                            SVChunkPosition pos = SV_BlockPositionToChunkPosition(data->request.position);
+                            SVChunk* chunk = SV_WorldGetChunk(world, pos.x, pos.z);
+
+                            SVInteger iPos = data->request.position.y + 128 * (
+                                    (data->request.position.z & 0xF) + 16 *
+                                    (data->request.position.x & 0xF));
+
+                            SVBlock block = {
+                                .blockPosition = {
+                                    .x = data->request.position.x,
+                                    .y = data->request.position.y,
+                                    .z = data->request.position.z
+                                },
+                                .chunkPosition = {
+                                    .x = pos.x,
+                                    .z = pos.z
+                                },
+                                .type = chunk->blocks[iPos],
+                                .data = {
+                                    .blockType = chunk->blocks[iPos],
+                                    .data = chunk->data[iPos],
+                                }
+                            };
+
+                            DEBUG("Break info: Chunk X:%i Chunk Z:%i Block Type:0x%.2X Block Data:0x%.2X\n",
+                                    pos.x, pos.z, chunk->blocks[iPos], chunk->data[iPos]);
+
+                            SVPacketBlockChange pkt = {
+                                .response = {
+                                    .position = {
+                                        .x = data->request.position.x,
+                                        .y = data->request.position.y,
+                                        .z = data->request.position.z
+                                    },
+                                    .type = SVAir,
+                                    .metadata = SVAir
+                                }
+                            };
+
+                            SVPacket response = { SVResponse, SVBlockChange, (CDPointer) &pkt};
+                            SV_WorldBroadcastPacket(world, &response); //Maybe send to all in region?
+                        }
+                        else {
+                            SERR(server, "Player %s tried to dig past max dig limit! Hacking?",
+                                    CD_StringContent(player->username));
+                            CD_ServerKick(server, client, CD_CreateStringFromCString("You tried to dig to far! Hacking?"));
+                        }
+                    }
+                } break;
 
 		case SVDisconnect: {
 			SVPacketDisconnect* data = (SVPacketDisconnect*) packet->data;

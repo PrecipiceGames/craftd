@@ -156,6 +156,15 @@ typedef enum _SVEntityEffect {
 	SVPoisoned = 19
 } SVEffect;
 
+typedef enum _SVDiggingStatus {
+        SVStartedDigging = 0,
+        SVDigging,
+        SVStoppedDigging = 2,
+        SVBlockBroken,
+        SVDropItem = 4,
+        SVArrowShot = 5
+} SVDiggingStatus;
+
 /*
  * Packet stuff
  */
@@ -328,14 +337,8 @@ typedef union _SVPacketPlayerMoveLook {
 
 typedef union _SVPacketPlayerDigging {
     struct {
-        enum {
-            SVStartedDigging = 0,
-            SVDigging,
-            SVStoppedDigging = 2,
-            SVBlockBroken,
-            SVDropItem = 4,
-            SVArrowShot = 5
-        } status;
+        SVDiggingStatus status;
+        
         SVBlockPosition position;
 
         SVBlockFace face;

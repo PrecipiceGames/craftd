@@ -401,6 +401,18 @@ typedef struct _SVEntity {
 	SVPrecisePosition position;
 } SVEntity;
 
+typedef struct _SVBlockMetadata {
+    SVInteger blockType;
+    SVByte    data;
+} SVBlockMetadata;
+
+typedef struct _SVBlock {
+    SVBlockPosition blockPosition;
+    SVChunkPosition chunkPosition;
+    SVBlockType     type;
+    SVBlockMetadata data;
+} SVBlock;
+
 typedef struct _SVItem {
 	SVShort id;
 	SVByte  count;

@@ -48,7 +48,7 @@ SV_CreateWorld (CDServer* server, const char* name)
 	self->name       = CD_CreateStringFromCStringCopy(name);
 	self->dimension  = SVWorldSkylands;
         self->mode       = SVModeCreative;
-        self->difficulty = SVDifficultyNormal;
+        self->difficulty = SVDifficultyHard;
 	self->time       = 0;
 
 	self->players  = CD_CreateHash();
