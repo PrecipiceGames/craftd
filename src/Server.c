@@ -184,7 +184,7 @@ cd_ReadCallback (struct bufferevent* event, CDClient* client)
 		void* packet;
 
 		if (self->protocol->parsable(client->buffers)) {
-			if ((packet = self->protocol->parse(client->buffers))) {
+			if ((packet = self->protocol->parse(client->buffers, false))) {
 				CD_BufferReadIn(client->buffers, CDNull, CDNull);
 
 				client->status = CDClientProcess;

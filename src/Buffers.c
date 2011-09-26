@@ -72,6 +72,10 @@ CD_BufferReadIn (CDBuffers* self, size_t low, size_t high)
 	if (high == 0) {
 		high = CD_DEFAULT_HIGH_WATERMARK;
 	}
+	
+	if (high < low) {
+		high = low;
+	}
 
 	bufferevent_setwatermark(self->raw, EV_READ, low, high);
 }

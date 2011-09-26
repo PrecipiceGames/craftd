@@ -428,7 +428,8 @@ typedef struct _SVData {
 		SVTypeInteger,
 		SVTypeFloat,
 		SVTypeString,
-		SVTypeShortByteShort
+		SVTypeShortByteShort,
+		SVTypeIntIntInt
 	} type;
 
 	union {
@@ -443,6 +444,12 @@ typedef struct _SVData {
 			SVByte  second;
 			SVShort third;
 		} sbs;
+		
+		struct {
+			SVInteger first;
+			SVInteger second;
+			SVInteger third;
+		} iii;
 	} data;
 } SVData;
 

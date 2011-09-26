@@ -51,7 +51,7 @@ SV_PacketParsable (CDBuffers* buffers)
 
 	switch (type) {
 		case SVLogin: {
-			variable += ntohs(*((SVShort*) (data + (offset += SVIntegerSize)))) * 2;
+			variable += ntohs(*((SVShort*) (data + (offset + SVIntegerSize)))) * 2;
 
 			goto check;
 		}
@@ -71,42 +71,157 @@ SV_PacketParsable (CDBuffers* buffers)
 		case SVPlayerBlockPlacement: {
 			offset += SVIntegerSize + SVByteSize + SVIntegerSize + SVByteSize;
 
-			if (ntohs(*((SVShort*) (data + offset))) != -1) {
+			if ((SVShort)ntohs(*((SVShort*) (data + offset))) != -1) {
 				variable += 3;
 			}
 
 			goto check;
 		}
+		
+		case SVNamedEntitySpawn: {
+			offset += SVIntegerSize;
+			variable += ntohs(*((SVShort*) (data + offset))) * 2;
+			
+			goto check;
+		}
+		
+		case SVSpawnObject: {
+			offset += SVIntegerSize + SVByteSize + SVIntegerSize * 3;
+			if ((SVInteger)ntohl(*((SVInteger*) (data + offset))) > 0) {
+				variable += SVShortSize * 3;
+			}
+			
+			goto check;
+		}
+		
+		case SVSpawnMob: {
+			offset += SVIntegerSize + SVByteSize + SVIntegerSize * 3 + SVByteSize + SVByteSize;
+			
+			while (!(CHECK)) {
+				uint8_t metatype = *((uint8_t*) (data + offset + variable) );
+				if (metatype == 127) {
+					goto done;
+				}
+				switch (metatype >> 5) {
+					case SVTypeByte:           variable += SVByteSize;                                break;
+					case SVTypeShort:          variable += SVShortSize;                               break;
+					case SVTypeInteger:        variable += SVIntegerSize;                             break;
+					case SVTypeFloat:          variable += SVFloatSize;                               break;
+					case SVTypeString: {
+						variable += SVShortSize;
+						if (CHECK) {
+							goto error;
+						}
+						variable += *((SVShort*) (data + offset + (variable - SVShortSize) + SVByteSize)); 
+					} break;
+					case SVTypeShortByteShort: variable += SVByteSize + SVShortSize + SVByteSize;     break;
+					case SVTypeIntIntInt:      variable += SVIntegerSize * 3;     break;
+					default: {
+						errno = EILSEQ;
+						goto error;
+					}
+				}
+				variable += SVByteSize;
+			}
+			
+			goto error;
+		}
 
 		case SVEntityMetadata: {
 			offset += SVIntegerSize;
 
-			while (length > offset && *((SVByte*) data + offset) != 127) {
-				switch (*((SVByte*) (data + offset)) >> 5) {
-					case SVTypeByte:           offset += SVByteSize;                                break;
-					case SVTypeShort:          offset += SVShortSize;                               break;
-					case SVTypeInteger:        offset += SVIntegerSize;                             break;
-					case SVTypeFloat:          offset += SVFloatSize;                               break;
-					case SVTypeString:         offset += *((SVShort*) (data + offset)) + SVShortSize; break;
-					case SVTypeShortByteShort: offset += SVByteSize + SVShortSize + SVByteSize;     break;
+			while (!(CHECK)) {
+				uint8_t metatype = *((uint8_t*) (data + offset + variable) );
+				if (metatype == 127) {
+					goto done;
 				}
+				switch (metatype >> 5) {
+					case SVTypeByte:           variable += SVByteSize;                                break;
+					case SVTypeShort:          variable += SVShortSize;                               break;
+					case SVTypeInteger:        variable += SVIntegerSize;                             break;
+					case SVTypeFloat:          variable += SVFloatSize;                               break;
+					case SVTypeString: {
+						variable += SVShortSize;
+						if (CHECK) {
+							goto error;
+						}
+						variable += *((SVShort*) (data + offset + (variable - SVShortSize) + SVByteSize)); 
+					} break;
+					case SVTypeShortByteShort: variable += SVByteSize + SVShortSize + SVByteSize;     break;
+					case SVTypeIntIntInt:      variable += SVIntegerSize * 3;     break;
+					default: {
+						errno = EILSEQ;
+						goto error;
+					}
+				}
+				variable += SVByteSize;
 			}
-
-			if (length >= offset) {
-				goto done;
-			}
-			else {
-				goto error;
-			}
+			
+			goto error;
+		}
+		
+		case SVMapChunk: {
+			offset += SVIntegerSize + SVShortSize + SVIntegerSize + SVByteSize * 3;
+			variable += ntohl(*((SVInteger*) (data + offset)));
+				
+			goto check;
+		}
+		
+		case SVMultiBlockChange: {
+			offset += SVIntegerSize + SVIntegerSize;
+			variable += ntohs(*((SVShort*) (data + offset))) * (SVShortSize + SVByteSize + SVShortSize);
+			
+			goto check;
+		}
+		
+		case SVExplosion: {
+			offset += SVDoubleSize * 3 + SVFloatSize;
+			variable += ntohl(*((SVInteger*) (data + offset))) * (SVByteSize * 3);
+			
+			goto check;
+		}
+		
+		case SVOpenWindow: {
+			offset += SVByteSize + SVByteSize;
+			variable += ntohs(*((SVShort*) (data + offset))) * 2;
+			
+			goto check;
 		}
 
 		case SVWindowClick: {
-			offset += SVByteSize + SVShortSize + SVByteSize + SVShortSize;
+			offset += SVByteSize + SVShortSize + SVByteSize + SVShortSize + SVBooleanSize;
 
-			if (ntohs(*((SVShort*) (data + offset))) != -1) {
+			if ((SVShort)ntohs(*((SVShort*) (data + offset))) != -1) {
 				variable += 3;
 			}
 
+			goto check;
+		}
+		
+		case SVSetSlot: {
+			offset += SVByteSize + SVShortSize;
+			if ((SVShort)ntohs(*((SVShort*) (data + offset))) != -1) {
+				variable += SVByteSize + SVShortSize;
+			}
+			
+			goto check;
+		}
+		
+		case SVWindowItems: {
+			offset += SVByteSize;
+			SVShort count = ntohs(*((SVShort*) (data + offset)));
+			offset += SVShortSize;
+			int i;
+			for (i=0; i<count; i++) {
+				variable += SVShortSize;
+				if (CHECK) {
+					goto error;
+				}
+				if ((SVShort)ntohs(*((SVShort*) (data + offset + (variable - SVShortSize)))) != -1) {
+					variable += SVByteSize + SVShortSize;
+				}
+			}
+			
 			goto check;
 		}
 
@@ -119,20 +234,33 @@ SV_PacketParsable (CDBuffers* buffers)
 				goto error;
 			}
 
-			variable += ntohs(*((SVShort*) (data + (offset += SVShortSize + variable)))) * 2;
+			variable += ntohs(*((SVShort*) (data + (offset += SVShortSize) + variable))) * 2;
 
 			if (CHECK) {
 				goto error;
 			}
 
-			variable += ntohs(*((SVShort*) (data + (offset += SVShortSize + variable)))) * 2;
+			variable += ntohs(*((SVShort*) (data + (offset += SVShortSize) + variable))) * 2;
 
 			if (CHECK) {
 				goto error;
 			}
 
-			variable += ntohs(*((SVShort*) (data + (offset += SVShortSize + variable)))) * 2;
+			variable += ntohs(*((SVShort*) (data + (offset += SVShortSize) + variable))) * 2;
 
+			goto check;
+		}
+		
+		case SVItemData: {
+			offset += SVShortSize + SVShortSize;
+			variable += *(uint8_t*)(data + offset);
+			
+			goto check;
+		}
+		
+		case SVPlayerListItem: {
+			variable += ntohs(*((SVShort*) (data + offset))) * 2;
+			
 			goto check;
 		}
 

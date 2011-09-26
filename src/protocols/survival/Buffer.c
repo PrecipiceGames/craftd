@@ -177,11 +177,20 @@ SV_BufferAddMetadata (CDBuffer* self, SVMetadata* data)
 	static char* formats[] = { "b", "s", "i", "f", "S" };
 
 	for (size_t i = 0; i < data->length; i++) {
+		SV_BufferAddByte(self, data->item[i]->type);
+		
 		if (data->item[i]->type == SVTypeShortByteShort) {
 			SV_BufferAddFormat(self, "sbs",
 				data->item[i]->data.sbs.first,
 				data->item[i]->data.sbs.second,
 				data->item[i]->data.sbs.third
+			);
+		}
+		else if (data->item[i]->type == SVTypeIntIntInt) {
+			SV_BufferAddFormat(self, "iii",
+				data->item[i]->data.iii.first,
+				data->item[i]->data.iii.second,
+				data->item[i]->data.iii.third
 			);
 		}
 		else {
@@ -332,7 +341,7 @@ SV_BufferRemoveString16 (CDBuffer* self)
 	evbuffer_remove(self->raw, data, length * sizeof(int16_t));
 
 	for (size_t i = 0; i < length; i++) {
-		int16_t ch = ntohs(data[i]);
+		uint16_t ch = ntohs(data[i]);
 
 		if (ch == 0xfffd) {
 			string = CD_realloc(string, (size += 1));
@@ -394,6 +403,13 @@ SV_BufferRemoveMetadata (CDBuffer* self)
 				&current->data.sbs.first,
 				&current->data.sbs.second,
 				&current->data.sbs.third
+			);
+		}
+		else if (current->type == SVTypeIntIntInt) {
+			SV_BufferRemoveFormat(self, "iii",
+				&current->data.iii.first,
+				&current->data.iii.second,
+				&current->data.iii.third
 			);
 		}
 		else {

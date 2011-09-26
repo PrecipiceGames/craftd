@@ -1,6 +1,6 @@
 SUBDIRS = survival/mapgen/noise
 
-pkglib_LTLIBRARIES =    libsurvival.tests.la libsurvival.base.la libsurvival.chat.la libsurvival.persistence.nbt.la libsurvival.mapgen.classic.la libsurvival.mapgen.trivial.la libhttpd.la
+pkglib_LTLIBRARIES =    libsurvival.tests.la libsurvival.base.la libsurvival.chat.la libsurvival.persistence.nbt.la libsurvival.mapgen.classic.la libsurvival.mapgen.trivial.la libsurvival.proxy.la libhttpd.la
 # BROKEN: libsvcmdadmin.la
 
 libsurvival_tests_la_SOURCES = survival/tests/main.c survival/tests/tinytest/tinytest.c survival/tests/tinytest/tinytest.h survival/tests/tinytest/tinytest_macros.h
@@ -15,6 +15,11 @@ EXTRA_DIST = survival/base/callbacks.c
 libsurvival_chat_la_SOURCES = survival/chat/main.c
 libsurvival_chat_la_LDFLAGS = -version-info=0:0:0
 libsurvival_chat_la_LIBS = $(AM_LIBS)
+
+libsurvival_proxy_la_SOURCES = survival/proxy/main.c
+libsurvival_proxy_la_LDFLAGS = -version-info=0:0:0
+libsurvival_proxy_la_LIBS = $(AM_LIBS)
+EXTRA_DIST += survival/proxy/callbacks.c
 
 # admin mod code is currently broken
 #libsvcmdadmin_la_SOURCES = survival/commands/admin/main.c 

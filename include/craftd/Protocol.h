@@ -29,7 +29,7 @@
 #include <craftd/common.h>
 
 typedef bool  (*CDProtocolPacketParsable) (CDBuffers* buffers);
-typedef void* (*CDProtocolPacketParse)    (CDBuffers* buffers);
+typedef void* (*CDProtocolPacketParse)    (CDBuffers* buffers, bool isResponse);
 
 typedef struct _CDProtocol {
 	CDString* name;

@@ -63,10 +63,13 @@ SVMetadata*
 SV_CreateMetadata (void)
 {
 	SVMetadata* self = CD_malloc(sizeof(SVMetadata));
-
+	
 	if (!self) {
 		return NULL;
 	}
+	
+	self->length = 0;
+	self->item = CD_malloc(0);
 
 	return self;
 }

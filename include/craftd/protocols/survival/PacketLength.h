@@ -50,7 +50,7 @@ static const size_t SVPacketLength[] = {
 /* 0x06 */  13,     // Spawn Position
 /* 0x07 */  10,     // Use Entity
 /* 0x08 */  9,      // Update Health
-/* 0x09 */  13,     // Respawn
+/* 0x09 */  14,     // Respawn
 /* 0x0A */  2,      // Player
 /* 0x0B */  34,     // Player Position
 /* 0x0C */  10,     // Player Look
@@ -68,7 +68,7 @@ static const size_t SVPacketLength[] = {
 /* 0x18 */  21,     // Mob Spawn
 /* 0x19 */  23,     // Painting
 /* 0x1A */  19,     // Experience Orb
-/* 0x1B */  18,     // Stance Update (?)
+/* 0x1B */  19,     // Stance Update (?)
 /* 0x1C */  11,		// Entity Velocity
 /* 0x1D */  5,		// Destroy Entity
 /* 0x1E */  5,		// Entity
