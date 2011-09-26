@@ -38,6 +38,19 @@ const char SVCharsetPixel[] = {
 	4, 5, 5, 5, 5, 4, 4, 4, 4, 5, 1, 5, 1, 5, 1, 1, 4, 5, 4, 1, 5, 6, 3, 5, 3, 5
 };
 
+const size_t SVCharsetLen = 143;
+const size_t SVCharsetOffset[] = {
+	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+	21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 35, 37, 39, 41, 43, 45, 47,
+	49, 51, 53, 55, 57, 59, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
+	74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92,
+	93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108,
+	109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123,
+	125, 127, 129, 131, 133, 135, 137, 139, 141, 143, 145, 147, 149, 151, 153,
+	155, 157, 159, 161, 163, 165, 167, 169, 171, 173, 175, 177, 179, 181, 183,
+	185, 187, 189, 191
+};
+
 const SVEntityId SVMaxEntityId = INT_MAX;
 
 void
@@ -121,8 +134,8 @@ SV_StringIsValid (SVString self)
 		bool      has = false;
 		CDString* ch  = CD_CharAt(self, i);
 
-		for (size_t h = 0, he = CD_UTF8_strlen(SVCharset); h < he; h++) {
-			const char* che = &SVCharset[CD_UTF8_offset(SVCharset, h)];
+		for (size_t h = 0; h < SVCharsetLen; h++) {
+			const char* che = &SVCharset[SVCharsetOffset[h]];
 
 			if (strncmp(CD_StringContent(ch), che, CD_StringSize(ch)) == 0) {
 				has = true;
@@ -152,9 +165,9 @@ SV_StringSanitize (SVString self)
 		bool      has = false;
 		CDString* ch  = CD_CharAt(self, i);
 
-		for (size_t h = 0, he = CD_UTF8_strlen(SVCharset); h < he; h++) {
-			const char* che = &SVCharset[CD_UTF8_offset(SVCharset, h)];
-
+		for (size_t h = 0; h < SVCharsetLen; h++) {
+			const char* che = &SVCharset[SVCharsetOffset[h]];
+			
 			if (strncmp(CD_StringContent(ch), che, CD_StringSize(ch)) == 0) {
 				has = true;
 				break;

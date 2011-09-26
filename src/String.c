@@ -233,7 +233,7 @@ CD_CreateStringFromOffset (CDString* string, size_t offset, size_t limit)
 
 	assert(string);
 
-	if (offset > CD_StringLength(string)) {
+	if (offset >= CD_StringLength(string)) {
 		return NULL;
 	}
 
