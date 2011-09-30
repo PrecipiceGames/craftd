@@ -413,13 +413,18 @@ typedef struct _SVBlock {
     SVBlockMetadata data;
 } SVBlock;
 
-typedef struct _SVItem {
-	SVShort id;
-	SVByte  count;
+/**
+ * Represents a stack of items or blocks. This is used for storing of
+ * items in player inventory, chests, etc.
+ */
+typedef struct _SVItemStack {
 
-	SVShort uses;
-	SVShort data;
-} SVItem;
+    SVShort id;
+    SVByte  slot;
+    SVShort damage;
+    SVByte  count;
+
+} SVItemStack;
 
 typedef struct _SVData {
 	enum {

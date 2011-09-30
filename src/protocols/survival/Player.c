@@ -41,9 +41,13 @@ SV_CreatePlayer (CDClient* client)
 	self->entity.position.x = 0;
 	self->entity.position.y = 0;
 	self->entity.position.z = 0;
+    self->currentSlot       = -1;
+
 
 	self->username = NULL;
 	self->world    = NULL;
+
+    self->inventory = CD_CreateMap();
 
 	DYNAMIC(self) = CD_CreateDynamic();
 	ERROR(self)   = CDNull;
@@ -59,6 +63,10 @@ SV_DestroyPlayer (SVPlayer* self)
 	if (self->username) {
 		CD_DestroyString(self->username);
 	}
+
+    if (self->inventory) {
+        CD_DestroyMap(self->inventory);
+    }
 
 	CD_DestroyDynamic(DYNAMIC(self));
 

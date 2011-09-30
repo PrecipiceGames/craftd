@@ -34,7 +34,7 @@
 struct _SVWorld;
 
 /**
- * The Player class.
+ * The Player class. All player specific state is kept here.
  */
 typedef struct _SVPlayer {
 	SVEntity entity;
@@ -46,6 +46,15 @@ typedef struct _SVPlayer {
 	SVFloat pitch;
 
 	CDString* username;
+
+
+    /**
+     * The collection of items a player has in his inventory.
+     * The the key is the slot_id and the value is an SVItem.
+     */
+    CDMap* inventory;
+
+    SVShort currentSlot; // the slot id that the player is holding
 
 	CD_DEFINE_DYNAMIC;
 	CD_DEFINE_ERROR;

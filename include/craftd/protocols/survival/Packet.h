@@ -28,7 +28,7 @@
 
 #include <craftd/protocols/survival/common.h>
 
-#define CRAFTD_PROTOCOL_VERSION (18)
+#define CRAFTD_PROTOCOL_VERSION (19)
 
 typedef enum _SVPacketChain {
 	SVRequest,
@@ -350,10 +350,8 @@ typedef union _SVPacketPlayerBlockPlacement {
         SVBlockPosition position;
 
         SVBlockFace direction;
-        SVItem  item;
-        SVByte  amount;
-        SVShort damage;
-    } request;
+        SVItemStack item;
+   } request;
 } SVPacketPlayerBlockPlacement;
 
 typedef union _SVPacketHoldChange {
@@ -404,14 +402,14 @@ typedef union _SVPacketNamedEntitySpawn {
 		SVByte rotation;
 		SVByte pitch;
 
-		SVItem item;
+		SVShort itemId;
 	} response;
 } SVPacketNamedEntitySpawn;
 
 typedef union _SVPacketPickupSpawn {
 	struct {
 		SVEntity           entity;
-		SVItem             item;
+		SVItemStack        item;
 		SVAbsolutePosition position;
 
 		SVByte rotation;
@@ -803,16 +801,14 @@ typedef union _SVPacketWindowClick {
         SVShort   action;
         SVBoolean shiftPressed;
 
-        SVItem item; // if the first of the 3 values is -1 the packet ends there
+        SVItemStack item; // if the first of the 3 values is -1 the packet ends there
     } request;
 } SVPacketWindowClick;
 
 typedef union _SVPacketSetSlot {
 	struct {
-		SVByte  id;
-		SVShort slot;
-
-		SVItem item; // if the first of the 3 values is -1 the packet ends there
+		SVByte  windowId;
+        SVItemStack item;
 	} response;
 } SVPacketSetSlot;
 
@@ -821,7 +817,7 @@ typedef union _SVPacketWindowItems {
 		SVByte id;
 
 		SVShort length;
-		SVItem* item;
+		SVItemStack* item;
 	} response;
 } SVPacketWindowItems;
 

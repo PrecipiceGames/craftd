@@ -38,6 +38,9 @@ static struct {
 
 #include "callbacks.c"
 
+//Callbacks specific to player inventory management
+#include "inventory.c"
+
 static
 void
 cdsurvival_TimeIncrease (void* _, void* __, CDServer* server)
@@ -203,16 +206,24 @@ CD_PluginInitialize (CDPlugin* self)
 	CD_EventRegister(self->server, "Client.connect", cdsurvival_ClientConnect);
 	CD_EventRegister(self->server, "Client.process", cdsurvival_ClientProcess);
 	CD_EventRegister(self->server, "Client.processed", cdsurvival_ClientProcessed);
+	CD_EventRegister(self->server, "Player.prelogin", cdsurvival_PlayerPreLogin);
 	CD_EventRegister(self->server, "Player.login", cdsurvival_PlayerLogin);
 	CD_EventRegister(self->server, "Player.logout", cdsurvival_PlayerLogout);
 	CD_EventRegister(self->server, "Player.destroy", cdsurvival_PlayerDestroy);
 	CD_EventRegister(self->server, "Client.kick", cdsurvival_ClientKick);
 	CD_EventRegister(self->server, "Client.disconnect", (CDEventCallbackFunction) cdsurvival_ClientDisconnect);
+    CD_EventRegister(self->server, "Player.holdChange", (CDEventCallbackFunction) cdsurvival_PlayerHoldChange);
+    CD_EventRegister(self->server, "Player.inventoryCreative", (CDEventCallbackFunction) cdsurvival_PlayerInventoryCreative);
 
+    CD_EventProvides(self->server, "Player.prelogin", CD_CreateEventParameters("SVPlayer", NULL));
 	CD_EventProvides(self->server, "Player.login", CD_CreateEventParameters("SVPlayer", "bool", NULL));
 	CD_EventProvides(self->server, "Player.logout", CD_CreateEventParameters("SVPlayer", "bool", NULL));
 	CD_EventProvides(self->server, "Player.chat", CD_CreateEventParameters("SVPlayer", "CDString", NULL));
 
+    CD_EventProvides(self->server, "Player.holdChange", CD_CreateEventParameters("SVPlayer", "SVShort", NULL));
+    CD_EventProvides(self->server, "Player.inventoryCreative", CD_CreateEventParameters("SVPlayer", "SVItemStack", NULL));
+
+    SDEBUG(self->server, "Survival Plugin initialized");
 
 	return true;
 }
@@ -242,6 +253,9 @@ CD_PluginFinalize (CDPlugin* self)
 	CD_EventUnregister(self->server, "Player.destroy", cdsurvival_PlayerDestroy);
 	CD_EventUnregister(self->server, "Client.kick", cdsurvival_ClientKick);
 	CD_EventUnregister(self->server, "Client.disconnect", (CDEventCallbackFunction) cdsurvival_ClientDisconnect);
+
+    CD_EventUnregister(self->server, "Player.holdChange", (CDEventCallbackFunction) cdsurvival_PlayerHoldChange);
+    CD_EventUnregister(self->server, "Player.inventoryCreative", (CDEventCallbackFunction) cdsurvival_PlayerInventoryCreative);
 
 	pthread_mutex_destroy(&_lock.login);
 
