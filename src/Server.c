@@ -229,7 +229,7 @@ cd_ErrorCallback (struct bufferevent* event, short error, CDClient* client)
 
 	ERROR(client) = error;
 
-	SLOG(self, LOG_INFO, "%s[%p] errored/disconnected", client->ip, client);
+	SLOG(self, LOG_INFO, "%s[%p] errored/disconnected", client->ip, ERROR(client));
 
 	CD_AddJob(client->server->workers, CD_CreateExternalJob(CDClientDisconnectJob, (CDPointer) client));
 

@@ -37,6 +37,9 @@ static CDRegexp*    _ChatCommandRegex;
 static void svchat_SendMessage (CDServer* server, CDString* message);
 static bool svchat_PlayerChat  (CDServer* server, SVPlayer* player, CDString* message);
 static bool svchat_ChatCommand (CDServer* server, SVPlayer* player, CDString* command, CDString* args);
+static bool svchat_PlayerPreLogin (CDServer* server, SVPlayer* player);
+static bool svchat_PlayerLogout (CDServer* server, SVPlayer* player);
+
 
 extern
 bool
@@ -79,8 +82,10 @@ CD_PluginInitialize (CDPlugin* self)
 	CD_EventProvides(self->server, "Chat.output",
 		_ChatOutputParams = CD_CreateEventParameters("SVPlayer", "CDString", "CDString", NULL));
 
-	CD_EventRegister(self->server, "Player.chat",   svchat_PlayerChat);
-	CD_EventRegister(self->server, "Chat.command",   svchat_ChatCommand);
+    CD_EventRegister(self->server, "Player.chat",   svchat_PlayerChat);
+    CD_EventRegister(self->server, "Player.prelogin",  svchat_PlayerPreLogin);
+    CD_EventRegister(self->server, "Player.logout", svchat_PlayerLogout);
+    CD_EventRegister(self->server, "Chat.command",  svchat_ChatCommand);
 
 
 	return true;
@@ -91,8 +96,10 @@ bool
 CD_PluginFinalize (CDPlugin* self)
 {
 
-	CD_EventUnregister(self->server, "Chat.command",   svchat_ChatCommand);
-	CD_EventUnregister(self->server, "Player.chat",   svchat_PlayerChat);
+    CD_EventUnregister(self->server, "Chat.command",   svchat_ChatCommand);
+    CD_EventUnregister(self->server, "Player.logout",  svchat_PlayerLogout);
+    CD_EventUnregister(self->server, "Player.prelogin",   svchat_PlayerPreLogin);
+    CD_EventUnregister(self->server, "Player.chat",    svchat_PlayerChat);
 
 	CD_DestroyEventParameters(_ChatOutputParams);
 	CD_DestroyEventParameters(_ChatCommandParams);
@@ -205,5 +212,29 @@ svchat_ChatCommand (CDServer* server, SVPlayer* player, CDString* command, CDStr
 
 	return false;
 
+}
+
+
+static
+bool
+svchat_PlayerPreLogin (CDServer* server, SVPlayer* player)
+{
+    SV_WorldBroadcastMessage(player->world, 
+        SV_StringColor(CD_CreateStringFromFormat("%s has joined the game",
+            CD_StringContent(player->username)), SVColorYellow));
+
+    return true;
+}
+
+
+static
+bool
+svchat_PlayerLogout (CDServer* server, SVPlayer* player)
+{
+    SV_WorldBroadcastMessage(player->world, 
+        SV_StringColor(CD_CreateStringFromFormat("%s has left the game",
+            CD_StringContent(player->username)), SVColorYellow));
+
+    return true;
 }
 
